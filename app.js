@@ -1,5 +1,33 @@
 //BUDGET CONTROLLER
-var budgetController = (function() {})();
+var budgetController = (function() {
+  var expense = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+  var income = function(id, description, value) {
+    this.id = id;
+    this.description = description;
+    this.value = value;
+  };
+
+  var data = {
+    allItems: {
+      exp: [],
+      inc: []
+    },
+    totals: {
+      exp: 0,
+      inc: 0
+    }
+  };
+})();
+
+var expense = function(id, description, value) {
+  this.id = id;
+  this.description = description;
+  this.value = value;
+};
 
 //UI CONTROLLER
 var UIController = (function() {
@@ -27,21 +55,29 @@ var UIController = (function() {
 //GLOABL CONTROLLER
 var controller = (function(budgetCtrl, UICtrl) {
   //function inside controlle
-  var getDOMstring = UICtrl.getDOMstring();
   var ctrlAddItem = function() {
     var input = UICtrl.getInput();
-    console.log(input);
   };
 
-  //function inside controller
-  document
-    .querySelector(getDOMstring.inputBtn)
-    .addEventListener("click", ctrlAddItem);
+  var setupEventListeners = function() {
+    var getDOMstring = UICtrl.getDOMstring();
+    document
+      .querySelector(getDOMstring.inputBtn)
+      .addEventListener("click", ctrlAddItem);
 
-  // function inside controller
-  document.addEventListener("keypress", function(event) {
-    if (event.keyCode === 13 || event.which === 13) {
-      ctrlAddItem();
+    document.addEventListener("keypress", function(event) {
+      if (event.keyCode === 13 || event.which === 13) {
+        ctrlAddItem();
+      }
+    });
+  };
+
+  return {
+    init: function() {
+      console.log("the application has started");
+      setupEventListeners();
     }
-  });
+  };
 })(budgetController, UIController);
+
+controller.init();
