@@ -13,14 +13,6 @@ var budgetController = (function() {
     this.value = value;
   };
 
-  var calculate = function(type) {
-    var sum = 0;
-    data.allItems[type].forEach(function(current) {
-      sum += current.value;
-    });
-    data.totals[type] = sum;
-  };
-
   var data = {
     allItems: {
       inc: [],
@@ -32,6 +24,13 @@ var budgetController = (function() {
       budget: 0,
       percentage: -1
     }
+  };
+  var calculate = function(type) {
+    var sum = 0;
+    data.allItems[type].forEach(function(current) {
+      sum += current.value;
+    });
+    data.totals[type] = sum;
   };
 
   return {
@@ -50,7 +49,7 @@ var budgetController = (function() {
         newItem = new Expense(ID, desc, val);
       }
       data.allItems[type].push(newItem);
-      console.log(data);
+      //console.log(data);
       return newItem;
     },
 
@@ -70,6 +69,17 @@ var budgetController = (function() {
         Budget: data.totals.budget,
         percentage: data.totals.percentage
       };
+    },
+
+    deleteItem: function(type, ID) {
+      var ids, index;
+      ids = data.allItems[type].map(function(current) {
+        return current.ID;
+      });
+      index = ids.indexOf(ID);
+      if (index !== -1) {
+        data.allItems[type].splice(index, 1);
+      }
     }
   };
 })();
@@ -86,7 +96,8 @@ var UIController = (function() {
     budgetValue: ".budget__value",
     budgetIncome: ".budget__income--value",
     budgetExpense: ".budget__expenses--value",
-    budgetPercentage: ".budget__expenses--percentage"
+    budgetPercentage: ".budget__expenses--percentage",
+    container: ".container"
   };
 
   return {
@@ -135,6 +146,12 @@ var UIController = (function() {
         document.querySelector(DOMstrings.budgetPercentage).textContent = "--";
       }
     },
+
+    deleteItem: function(id) {
+      var el;
+      el = document.getElementById(id);
+      el.parentNode.removeChild(el);
+    },
     clearfields: function() {
       var fields, fieldsArr;
       fields = document.querySelectorAll(
@@ -162,8 +179,29 @@ var controller = (function(budgetCtrl, UICtrl) {
         ctrlAddItem();
       }
     });
+    document.querySelector(DOM.container).addEventListener("click", ctrlDelete);
   };
-
+  var ctrlDelete = function(event) {
+    var itemID, ID, type, splitID;
+    //get the ID
+    if (event.target.nodeName.toLowerCase() === "i") {
+      itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
+      console.log(itemID);
+    } else {
+      itemID = false;
+    }
+    if (itemID) {
+      splitID = itemID.split("-");
+      ID = parseInt(splitID[1]);
+      type = splitID[0];
+      // delete item from the budget controller
+      budgetCtrl.deleteItem(type, ID);
+      //update the UI
+      UICtrl.deleteItem(itemID);
+      //update and show the new budget
+      updateBudget();
+    }
+  };
   var updateBudget = function() {
     //calculate budget
     budgetCtrl.calculateBudget();
