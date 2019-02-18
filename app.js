@@ -97,7 +97,9 @@ var UIController = (function() {
     budgetIncome: ".budget__income--value",
     budgetExpense: ".budget__expenses--value",
     budgetPercentage: ".budget__expenses--percentage",
-    container: ".container"
+    container: ".container",
+    expensesPercLabel: ".item__percentage",
+    dateLabel: ".budget__title--month"
   };
 
   return {
@@ -152,6 +154,47 @@ var UIController = (function() {
       el = document.getElementById(id);
       el.parentNode.removeChild(el);
     },
+
+    displayMonth: function() {
+      var now, months, month, year;
+
+      now = new Date();
+      months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ];
+      month = now.getMonth();
+
+      year = now.getFullYear();
+      document.querySelector(DOMstrings.dateLabel).textContent =
+        months[month] + " " + year;
+    },
+    changeType: function() {
+      var fields, fieldsArr;
+      fields = document.querySelectorAll(
+        DOMstrings.inputType +
+          "," +
+          DOMstrings.inputDescription +
+          "," +
+          DOMstrings.inputValue
+      );
+
+      fieldsArr = Array.prototype.slice.call(fields);
+      fieldsArr.forEach(function(current, index, Array) {
+        current.classList.toggle("red-focus");
+      });
+    },
+
     clearfields: function() {
       var fields, fieldsArr;
       fields = document.querySelectorAll(
@@ -180,6 +223,9 @@ var controller = (function(budgetCtrl, UICtrl) {
       }
     });
     document.querySelector(DOM.container).addEventListener("click", ctrlDelete);
+    document
+      .querySelector(DOM.inputType)
+      .addEventListener("change", UICtrl.changeType);
   };
   var ctrlDelete = function(event) {
     var itemID, ID, type, splitID;
@@ -229,6 +275,7 @@ var controller = (function(budgetCtrl, UICtrl) {
   return {
     init: function() {
       console.log("the application has started");
+      UICtrl.displayMonth();
       UICtrl.displayBudget({
         totalInc: 0,
         totalExp: 0,
